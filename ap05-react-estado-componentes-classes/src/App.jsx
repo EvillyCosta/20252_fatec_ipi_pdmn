@@ -1,17 +1,42 @@
 import React from "react"
-import Cat from "./Cat"
-class App extends React.Component {
+import Gato from "./Gato"
+import EstacaoClimatica from "./EstacaoClimatica"
+import Loading from "./Loading"
+class App extends React.Component{
 
   constructor(props){
     super(props)
-    this.state = {
-      latitude: null,
-      longitude: null,
-      estacao: null,
-      data: null,
-      icone: null,
-      mensagemDeErro: null
-    }
+    // this.state = {
+    //   latitude: null,
+    //   longitude: null,
+    //   estacao: null,
+    //   data: null,
+    //   icone: null,
+    //   mensagemDeErro: null    
+    // }
+    console.log('constructor')
+  }
+
+  state = {
+    latitude: null,
+    longitude: null,
+    estacao: null,
+    data: null,
+    icone: null,
+    mensagemDeErro: null
+  }
+
+  componentDidMount(){
+    console.log('componentDidMount')
+    this.obterLocalizacao()
+  }
+
+  componentDidUpdate(){
+    console.log('componentDidUpdate')
+  }
+
+  componentWillUnmount(){
+    console.log('componentWillUnmount')
   }
 
   icones = {
@@ -20,7 +45,6 @@ class App extends React.Component {
     'Outono': 'leaf',
     'Inverno': 'snowflake'
   }
-
   obterEstacao = (dataAtual, latitude) => {
     //ano, mês(0 a 11), dia(1 a 31)
     const anoAtual = dataAtual.getFullYear()
@@ -35,14 +59,14 @@ class App extends React.Component {
     const estaNoSul = latitude < 0
     if (dataAtual >= d1 && dataAtual < d2)
       return estaNoSul ? "Inverno" : "Verão"
-
-    if (dataAtual >= d2 && dataAtual < d3)
+    //fazer mais dois ifs
+    //e terminar com um ternario sem if
+    if(dataAtual >= d2 && dataAtual < d3)
       return estaNoSul ? "Primavera" : "Outono"
-
-    if (dataAtual >= d3 || dataAtual < d1)
+    if(dataAtual >= d3 || dataAtual < d1)
       return estaNoSul ? "Verão" : "Inverno"
     return estaNoSul ? "Outono" : "Primavera"
-     
+
   }
 
   obterLocalizacao = () => {
@@ -52,62 +76,50 @@ class App extends React.Component {
         const estacao = this.obterEstacao(dataAtual, position.coords.latitude)
         const icone = this.icones[estacao]
         this.setState({
-          latitute: position.coords.latitude,
+          latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           estacao: estacao,
           data: dataAtual.toLocaleString(),
-          icone: icone
+          icone: icone  
         })
       },
       (erro) => {
         console.log(erro)
         this.setState({mensagemDeErro: 'Tente novamente mais tarde'})
       }
-    )
+    )  
   }
-  //agora o gato cresceu
-  //A produção de gatos deve ser feita por um componente
-  //React chamado Gato
-  //o tamanho do gato deve ser passado via props
 
-
-  render() {
-    console.log(this.state)
+  render(){
+    console.log('render')
     return(
       <div className="container mt-2">
         <div className="row">
           <div className="col-12">
-            <Cat size="2"/>
-            <Cat size="2" direction="horizontal"/>
+            <Gato tamanho="2"/>
+            <Gato tamanho="2" direcao="horizontal" />
           </div>
         </div>
         {/* .card>.card-body */}
-        <div className="card">
-          <div className="card-body">
-            {/* .d-flex.border.rounded.mb-2*/}
-            <div 
-              className="d-flex align-items-center border rounded mb-2"
-              style={{height: '6rem'}}>
-                <i className={`fa-solid fa-4x fa-${this.state.icone}`}></i>
-                <p className="w-75 text-center ms-3 fs-1">{this.state.estacao}</p>
-            </div>
-            <div>
-              <p className="text-center">
-              {
-                this.state.latitude ?
-                `Coordenadas: ${this.state.latitude}, ${this.state.longitude}.
-                Data: ${this.state.data}`:
-                this.state.mensagemDeErro ? 
-                this.state.mensagemDeErro :
-                `Clique no botão para saber a sua estação climática`
-              }
+        <div className="row">
+          <div className="col-12">
+            {
+              (!this.state.latitude && !this.state.mensagemDeErro) ?
+                <Loading />
+              :
+              this.state.mensagemDeErro ?
+              // p.border.rounded.p-2.fs-1.text-center
+              <p className="border rounded p-2 fs-1 text-center">
+                É preciso dar permissão de acesso à localização. Atualize a página e tente de novo, ajustando a configuração no seu navegador.
               </p>
-            </div>
-              <button
-              onClick={this.obterLocalizacao}
-              className="btn btn-outline-primary w-100 mt-2">
-              Qual a minha estação?
-              </button>
+              :
+              <EstacaoClimatica
+                latitude={this.state.latitude}
+                longitude={this.state.longitude}
+                estacao={this.state.estacao}
+                icone={this.state.icone}
+                obterLocalizacao={this.obterLocalizacao} />
+            }
           </div>
         </div>
       </div>
