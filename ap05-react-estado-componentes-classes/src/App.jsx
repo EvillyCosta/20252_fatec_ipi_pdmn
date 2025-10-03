@@ -105,7 +105,7 @@ class App extends React.Component{
           <div className="col-12">
             {
               (!this.state.latitude && !this.state.mensagemDeErro) ?
-                <Loading />
+                <Loading texto="Por favor, liberar o acesso à sua localização"/>
               :
               this.state.mensagemDeErro ?
               // p.border.rounded.p-2.fs-1.text-center
